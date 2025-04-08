@@ -6,6 +6,12 @@ class Assets {
   static const String configProdConfig = 'assets/config/prod_config.json';
   static const String configQaConfig = 'assets/config/qa_config.json';
   static const String configUatConfig = 'assets/config/uat_config.json';
+  static const String iconsCustomerActive = 'assets/icons/customer_active.png';
+  static const String iconsCustomerUnactive = 'assets/icons/customer_unactive.png';
+  static const String iconsLocationActive = 'assets/icons/location_active.png';
+  static const String iconsLocationUnactive = 'assets/icons/location_unactive.png';
+  static const String iconsStaffActive = 'assets/icons/staff_active.png';
   static const String iconsStaffIcon = 'assets/icons/staffIcon.png';
+  static const String iconsStaffUnactive = 'assets/icons/staff_unactive.png';
 
 }

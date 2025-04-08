@@ -60,7 +60,7 @@ class TwoButtonsScreen extends StatelessWidget {
                 fixedSize: const Size(475, 150), // set size
               ),
               onPressed: () {
-                // กำหนดการทำงานเมื่อกดปุ่มได้ที่นี่
+                Navigator.pushNamed(context, "loginScreen");
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
