@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/bloc.dart';
-import 'package:thai_take_away_back_end/presentation/screens/admin/customer_list_screen.dart';
+import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/customer_list_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/customer_detail_screen.dart';
+import 'package:thai_take_away_back_end/presentation/screens/admin/main_manager_admin_screen.dart';
+import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/order_detail_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/login_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/options_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/work_attendance_screen.dart';
@@ -37,6 +39,8 @@ class MyApp extends StatelessWidget {
           'loginScreen': (context) => LoginScreen(),
           'customerPage': (context) => CustomerPage(),
           'customerDetailScreen': (context) => CustomerDetailScreen(),
+          'mainManagerAdminScreen': (context) => MainManagerAdminScreen(),
+
         },
       ),
     );

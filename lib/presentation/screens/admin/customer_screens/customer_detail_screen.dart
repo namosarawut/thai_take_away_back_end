@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:thai_take_away_back_end/logic/blocs/attendance/attendance_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/order_view/order_view_cubit.dart';
+import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/order_detail_screen.dart';
 
 
 class CustomerDetailScreen extends StatefulWidget {
@@ -206,7 +207,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               child: Stack(
                 children: [
                   Container(
-
                     decoration: BoxDecoration(
                         color: Colors.white,
                       borderRadius: BorderRadius.circular(20)
@@ -214,10 +214,34 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     child: ListView.builder(
                       itemCount: 5,
                       itemBuilder: (_, index) {
-                        return ListTile(
-                          title: const Text("12212123"),
-                          subtitle: const Text("1000 k."),
-                          leading: const Icon(Icons.image, color: Color(0xFFFD80A3)),
+                        return GestureDetector(
+                          onTap: (){
+                            // ในที่ที่ต้องการเปิดหน้า Order Detail:
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OrderDetailPage(
+                                  orderId: '12212123',
+                                  items: [
+                                    OrderItem(name: 'Stekt ris med kylling', price: 129),
+                                    OrderItem(name: 'Stekt ris med kylling', price: 129),
+                                    OrderItem(name: 'Stekt ris med kylling', price: 129),
+                                    OrderItem(
+                                      name: 'Stekt ris med kylling',
+                                      subtitle: 'Stekt ris med kylling',
+                                      price: 129,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+
+                          },
+                          child: ListTile(
+                            title: const Text("12212123"),
+                            subtitle: const Text("1000 k."),
+                            leading: const Icon(Icons.image, color: Color(0xFFFD80A3)),
+                          ),
                         );
                       },
                     ),

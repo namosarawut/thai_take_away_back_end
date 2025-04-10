@@ -8,6 +8,7 @@ class Assets {
   static const String configUatConfig = 'assets/config/uat_config.json';
   static const String iconsCustomerActive = 'assets/icons/customer_active.png';
   static const String iconsCustomerUnactive = 'assets/icons/customer_unactive.png';
+  static const String iconsDropdownIcon = 'assets/icons/dropdown_icon.png';
   static const String iconsLocationActive = 'assets/icons/location_active.png';
   static const String iconsLocationUnactive = 'assets/icons/location_unactive.png';
   static const String iconsStaffActive = 'assets/icons/staff_active.png';

@@ -4,7 +4,7 @@ import 'package:thai_take_away_back_end/logic/blocs/side_bar/side_bar_bloc.dart'
 
 /// 5. ปรับปรุง Widget Sidebar โดยใช้ BlocBuilder
 class SideBar extends StatelessWidget {
-  const SideBar({Key? key}) : super(key: key);
+  const SideBar({super.key});
 
   @override
   Widget build(BuildContext context) {

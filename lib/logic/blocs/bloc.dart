@@ -1,7 +1,9 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/add_employee_dialog/position_dialog_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/attendance/attendance_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
+import 'package:thai_take_away_back_end/logic/blocs/dialog_employees/dialog_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar/side_bar_bloc.dart';
 
 import 'order_view/order_view_cubit.dart';
@@ -15,6 +17,8 @@ class BlocList {
       BlocProvider<AttendanceBloc>(create: (_) => AttendanceBloc()),
       BlocProvider<SideBarBloc>(create: (_) => SideBarBloc()),
       BlocProvider<OrderViewCubit>(create: (_) => OrderViewCubit()),
+      BlocProvider<DialogCubit>(create: (_) => DialogCubit()),
+      BlocProvider<PositionDialogCubit>(create: (_) => PositionDialogCubit()),
       BlocProvider<CustomerBloc>(create: (_) => CustomerBloc()..add(LoadCustomers())),
     ];
   }
