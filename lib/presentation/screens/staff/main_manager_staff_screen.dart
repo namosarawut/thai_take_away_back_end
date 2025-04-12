@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thai_take_away_back_end/logic/blocs/side_bar_admin/side_bar_admin_bloc.dart';
-
+import 'package:thai_take_away_back_end/logic/blocs/side_bar_staff/side_bar_staff_bloc.dart';
 import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/customer_list_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/admin/employees_screen/employees_list_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/admin/location_management/location_management_screen.dart';
-import 'package:thai_take_away_back_end/presentation/widgets/sidebar_admin.dart';
+import 'package:thai_take_away_back_end/presentation/widgets/sidebar_staff.dart';
 
-class MainManagerAdminScreen extends StatefulWidget {
-  const MainManagerAdminScreen({super.key});
+class MainManagerStaffScreen extends StatefulWidget {
+  const MainManagerStaffScreen({super.key});
 
   @override
-  State<MainManagerAdminScreen> createState() => _MainManagerAdminScreenState();
+  State<MainManagerStaffScreen> createState() => _MainManagerAdminScreenState();
 }
 
-class _MainManagerAdminScreenState extends State<MainManagerAdminScreen> {
+class _MainManagerAdminScreenState extends State<MainManagerStaffScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          BlocBuilder<SideBarAdminBloc, SideBarAdminState>(
-            builder: (context, sideBarAdminState) {
-              if(sideBarAdminState.selectedItem == SideBarAdminSelectedItem.customer){
+          BlocBuilder<SideBarStaffBloc, SideBarStaffState>(
+            builder: (context, sideBarStaffState) {
+              if(sideBarStaffState.selectedItem == SideBarStaffSelectedItem.notification){
                 return CustomerPage();
-              }else if(sideBarAdminState.selectedItem == SideBarAdminSelectedItem.staff){
+              }else if(sideBarStaffState.selectedItem == SideBarStaffSelectedItem.order){
                 return EmployeesListScreen();
-              } else if(sideBarAdminState.selectedItem == SideBarAdminSelectedItem.location){
+              } else if(sideBarStaffState.selectedItem == SideBarStaffSelectedItem.menu){
                 return MapScreen();
               } else {
                 return SizedBox();
@@ -36,7 +35,7 @@ class _MainManagerAdminScreenState extends State<MainManagerAdminScreen> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 0, 0),
-            child: const SideBarAdmin(),
+            child: const SideBarStaff(),
           ),
         ],
       ),

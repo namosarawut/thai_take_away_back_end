@@ -11,6 +11,12 @@ class Assets {
   static const String iconsDropdownIcon = 'assets/icons/dropdown_icon.png';
   static const String iconsLocationActive = 'assets/icons/location_active.png';
   static const String iconsLocationUnactive = 'assets/icons/location_unactive.png';
+  static const String iconsMenuIconDisable = 'assets/icons/menu_icon_disable.png';
+  static const String iconsMenuIconEnable = 'assets/icons/menu_icon_enable.png';
+  static const String iconsNatifacationIconDisable = 'assets/icons/natifacation_icon_disable.png';
+  static const String iconsNatifacationIconEnable = 'assets/icons/natifacation_icon_enable.png';
+  static const String iconsOrderIconDisable = 'assets/icons/order_icon_disable.png';
+  static const String iconsOrderIconEnable = 'assets/icons/order_icon_enable.png';
   static const String iconsStaffActive = 'assets/icons/staff_active.png';
   static const String iconsStaffIcon = 'assets/icons/staffIcon.png';
   static const String iconsStaffUnactive = 'assets/icons/staff_unactive.png';

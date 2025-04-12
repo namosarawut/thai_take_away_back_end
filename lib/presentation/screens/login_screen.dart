@@ -81,7 +81,8 @@ class LoginScreen extends StatelessWidget {
                       Center(
                         child: InkWell(
                           onTap: () {
-                            Navigator.pushNamed(context, "mainManagerAdminScreen");
+                            // Navigator.pushNamed(context, "mainManagerAdminScreen");
+                            Navigator.pushNamed(context, "mainManagerStaffScreen");
                           },
                           child: Container(
                             width: 200,

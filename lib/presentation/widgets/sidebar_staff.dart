@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thai_take_away_back_end/logic/blocs/side_bar/side_bar_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/side_bar_admin/side_bar_admin_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/side_bar_staff/side_bar_staff_bloc.dart';
 
-/// 5. ปรับปรุง Widget Sidebar โดยใช้ BlocBuilder
-class SideBar extends StatelessWidget {
-  const SideBar({super.key});
+/// 5. ปรับปรุง Widget SideBarAdmin โดยใช้ BlocBuilder
+class SideBarStaff extends StatelessWidget {
+  const SideBarStaff({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SideBarBloc, SideBarState>(
+    return BlocBuilder<SideBarStaffBloc, SideBarStaffState>(
       builder: (context, state) {
         return Container(
           width: 80,
@@ -24,18 +25,18 @@ class SideBar extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   // เมื่อกด Location ให้ส่ง Event เพื่อเปลี่ยน state
-                  context.read<SideBarBloc>().add(
-                    SelectSideBarItem(
-                        selectedItem: SideBarSelectedItem.location),
+                  context.read<SideBarStaffBloc>().add(
+                    SelectSideBarStaffItem(
+                        selectedItem: SideBarStaffSelectedItem.notification),
                   );
                 },
                 child: SizedBox(
                   width: 55,
                   height: 55,
                   child: Image.asset(
-                    state.selectedItem == SideBarSelectedItem.location
-                        ? 'assets/icons/location_active.png'
-                        : 'assets/icons/location_unactive.png',
+                    state.selectedItem == SideBarStaffSelectedItem.notification
+                        ? 'assets/icons/natifacation_icon_enable.png'
+                        : 'assets/icons/natifacation_icon_disable.png',
                   ),
                 ),
               ),
@@ -43,18 +44,18 @@ class SideBar extends StatelessWidget {
               // ไอคอน Customer
               GestureDetector(
                 onTap: () {
-                  context.read<SideBarBloc>().add(
-                    SelectSideBarItem(
-                        selectedItem: SideBarSelectedItem.customer),
+                  context.read<SideBarStaffBloc>().add(
+                    SelectSideBarStaffItem(
+                        selectedItem: SideBarStaffSelectedItem.order),
                   );
                 },
                 child: SizedBox(
                   width: 55,
                   height: 55,
                   child: Image.asset(
-                    state.selectedItem == SideBarSelectedItem.customer
-                        ? 'assets/icons/customer_active.png'
-                        : 'assets/icons/customer_unactive.png',
+                    state.selectedItem == SideBarStaffSelectedItem.order
+                        ? 'assets/icons/order_icon_enable.png'
+                        : 'assets/icons/order_icon_disable.png',
                   ),
                 ),
               ),
@@ -62,18 +63,18 @@ class SideBar extends StatelessWidget {
               // ไอคอน Staff
               GestureDetector(
                 onTap: () {
-                  context.read<SideBarBloc>().add(
-                    SelectSideBarItem(
-                        selectedItem: SideBarSelectedItem.staff),
+                  context.read<SideBarStaffBloc>().add(
+                    SelectSideBarStaffItem(
+                        selectedItem: SideBarStaffSelectedItem.menu),
                   );
                 },
                 child: SizedBox(
                   width: 55,
                   height: 55,
                   child: Image.asset(
-                    state.selectedItem == SideBarSelectedItem.staff
-                        ? 'assets/icons/staff_active.png'
-                        : 'assets/icons/staff_unactive.png',
+                    state.selectedItem == SideBarStaffSelectedItem.menu
+                        ? 'assets/icons/menu_icon_enable.png'
+                        : 'assets/icons/menu_icon_disable.png',
                   ),
                 ),
               ),
