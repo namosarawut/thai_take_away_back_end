@@ -8,6 +8,7 @@ import 'package:thai_take_away_back_end/presentation/screens/admin/customer_scre
 import 'package:thai_take_away_back_end/presentation/screens/staff/main_manager_staff_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/login_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/options_screen.dart';
+import 'package:thai_take_away_back_end/presentation/screens/staff/menu_screen/menu_form_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/work_attendance_screen.dart';
 import 'core/config/environment.dart';
 
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
           'customerDetailScreen': (context) => CustomerDetailScreen(),
           'mainManagerAdminScreen': (context) => MainManagerAdminScreen(),
           'mainManagerStaffScreen': (context) => MainManagerStaffScreen(),
+          'addItemScreen': (context) => AddItemScreen(),
         },
       ),
     );
