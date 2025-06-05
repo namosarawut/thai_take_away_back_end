@@ -10,6 +10,8 @@ import 'package:thai_take_away_back_end/presentation/screens/login_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/options_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/staff/menu_screen/menu_form_screen.dart';
 import 'package:thai_take_away_back_end/presentation/screens/work_attendance_screen.dart';
+import 'package:thai_take_away_back_end/repositores/attendance_repository.dart';
+import 'package:thai_take_away_back_end/service/api_service.dart';
 import 'core/config/environment.dart';
 
 void main() async {
@@ -17,18 +19,20 @@ void main() async {
 
   // Change this line to switch environments
   await EnvironmentConfig().initialize(Environment.dev);
-
-  runApp(const MyApp());
+  final apiService = ApiService();
+  final attendanceRepository = AttendanceRepository(apiService);
+  runApp( MyApp(attendanceRepository:attendanceRepository));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final AttendanceRepository attendanceRepository;
+  const MyApp({super.key, required this.attendanceRepository});
 
   @override
   Widget build(BuildContext context) {
 
     return MultiBlocProvider(
-      providers: BlocList().blocs,
+      providers: BlocList(attendanceRepository).blocs,
       child: MaterialApp(
         title: 'Secure Flutter App',
         theme: ThemeData(
