@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thai_take_away_back_end/logic/blocs/attendance/attendance_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/employees_screen_bloc.dart';
 import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/order_detail_screen.dart';
 import 'package:thai_take_away_back_end/presentation/widgets/add_employee_dialog.dart';
 import 'package:thai_take_away_back_end/presentation/widgets/employee_period_dialog.dart';
@@ -20,7 +20,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F4F9),
-      body: BlocConsumer<AttendanceBloc, AttendanceState>(
+      body: BlocConsumer<EmployeesScreenBloc, EmployeesScreenState>(
         listener: (context, state) {
           // TODO: implement listener
         },
@@ -55,7 +55,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                     Row(
                       children: [
                         Container(
-                          width: 300,
+                          width: 310,
                           height: 56,
                           decoration: BoxDecoration(
                             color: Color(0xFFE2E1EA),
@@ -67,11 +67,11 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                               AnimatedPositioned(
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
-                                left: state.isCheckIn ? 4 : 160.0,
+                                left: state.isViewEmployeeList ? 4 : 160.0,
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   child: Container(
-                                    width: state.isCheckIn ? 145 : 130.0,
+                                    width: state.isViewEmployeeList ? 145 : 145.0,
                                     height: 37,
                                     decoration: BoxDecoration(
                                       color: Color(0xFF534598),
@@ -86,13 +86,13 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        context.read<AttendanceBloc>().add(ToggleCheckInMode(true));
+                                        context.read<EmployeesScreenBloc>().add(ToggleEmployeesViewType(true));
                                       },
                                       child: Center(
                                         child: Text(
-                                          'Work Attendance',
+                                          'Employee Lists',
                                           style: TextStyle(
-                                            color: state.isCheckIn ? Colors.white : Color(0xFF534598),
+                                            color: state.isViewEmployeeList ? Colors.white : Color(0xFF534598),
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,
                                           ),
@@ -103,13 +103,13 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        context.read<AttendanceBloc>().add(ToggleCheckInMode(false));
+                                        context.read<EmployeesScreenBloc>().add(ToggleEmployeesViewType(false));
                                       },
                                       child: Center(
                                         child: Text(
-                                          'Employee Lists',
+                                          'Work Attendance',
                                           style: TextStyle(
-                                            color: !state.isCheckIn ? Colors.white : Color(0xFF534598),
+                                            color: !state.isViewEmployeeList ? Colors.white : Color(0xFF534598),
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,
                                           ),
@@ -125,7 +125,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                         const SizedBox(width: 12),
                         GestureDetector(
                           onTap: (){
-                            if(state.isCheckIn){
+                            if(state.isViewEmployeeList){
                               EmployeePeriodDialog.show(context);
                             }else{
                               PositionDialog.show(context);
@@ -139,7 +139,7 @@ class _EmployeesListScreenState extends State<EmployeesListScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
-                              child: Text(state.isCheckIn ? "Fillter Summary":"Add",
+                              child: Text(state.isViewEmployeeList ? "Add":"Fillter Summary",
                                   style: const TextStyle(
                                     fontSize: 20,
                                       color: Colors.white,
