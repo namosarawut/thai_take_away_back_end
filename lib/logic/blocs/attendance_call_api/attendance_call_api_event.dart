@@ -9,3 +9,9 @@ class CheckInRequested extends AttendanceCallApiEvent {
 
   CheckInRequested(this.employeeID);
 }
+
+/// เพิ่ม event สำหรับ check-out
+class CheckOutRequested extends AttendanceCallApiEvent {
+  final String employeeID;
+  CheckOutRequested(this.employeeID);
+}

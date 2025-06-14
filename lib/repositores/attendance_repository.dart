@@ -37,4 +37,25 @@ class AttendanceRepository {
       throw Exception("Failed to check-in: $e");
     }
   }
+  /// ตรวจเช็คเอาท์พนักงาน (Check-out)
+
+  Future<CheckOutResponse> checkOutEmployee({ required String employeeID }) async {
+    try {
+      final requestBody = {
+        "employeeID": employeeID,
+      };
+
+      final response = await apiService.post(
+        "/api/attendance/checkout",
+        data: requestBody,
+      );
+      return CheckOutResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final serverMessage = e.response?.data?["message"] ?? "Unknown server error";
+      throw Exception("Server Error: $serverMessage");
+    } catch (e) {
+      throw Exception("Failed to check-in: $e");
+    }
+  }
+
 }

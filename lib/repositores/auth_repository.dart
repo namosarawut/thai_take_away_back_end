@@ -1,100 +1,38 @@
-import 'dart:io';
+// repositores/auth_repository.dart
 
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
+import 'package:thai_take_away_back_end/data/local_storage_helper.dart';
+import 'package:thai_take_away_back_end/data/model/login_response.dart';
 import 'package:thai_take_away_back_end/service/api_service.dart';
-
-import '../data/model/user_model.dart';
 
 class AuthRepository {
   final ApiService apiService;
-
   AuthRepository(this.apiService);
 
-  Future<String> registerUser(
-      String username, String email, String password) async {
-    try {
-      final response = await apiService.post("/auth/register",
-          data: {"username": username, "email": email, "password": password});
-
-      return response.data["message"]; // "User registered successfully"
-    } catch (e) {
-      throw Exception("Registration failed");
-    }
+  Future<LoginResponse> loginEmployee({ required String employeeID }) async {
+    final resp = await apiService.post(
+      "/api/login",
+      data: {"employeeID": employeeID},
+    );
+    // เก็บ access + refresh token
+    await LocalStorageHelper.saveToken(resp.data['accessToken']);
+    await LocalStorageHelper.saveRefreshToken(resp.data['refreshToken']);
+    return LoginResponse.fromJson(resp.data);
   }
 
-  Future<Map<String, dynamic>> loginUser(
-      String username, String password) async {
-    try {
-      final response = await apiService.post("/auth/login",
-          data: {"username": username, "password": password});
-
-      final token = response.data["token"];
-      final userJson = response.data["user"];
-      final user = UserModel.fromJson(userJson); // แปลง JSON เป็น Object
-
-      return {"token": token, "user": user};
-    } catch (e) {
-      throw Exception("Login failed");
-    }
+  Future<String> refreshToken() async {
+    final refresh = await LocalStorageHelper.getRefreshToken();
+    if (refresh == null) throw Exception("No refresh token");
+    final resp = await apiService.post(
+      "/api/login/refresh",
+      data: {"refreshToken": refresh},
+    );
+    final newToken = resp.data['accessToken'] as String;
+    await LocalStorageHelper.saveToken(newToken);
+    return newToken;
   }
 
-  Future<Map<String, dynamic>> loginWithGoogle(String uid, String email) async {
-    try {
-      final response = await apiService
-          .post("/auth/google-auth", data: {"uid": uid, "email": email});
-
-      final token = response.data["token"];
-      final userJson = response.data["user"];
-      final user = UserModel.fromJson(userJson);
-
-      return {"token": token, "user": user};
-    } catch (e) {
-      throw Exception("Google Login failed");
-    }
-  }
-
-  Future<UserModel> getUserById(int userId) async {
-    try {
-      final response = await apiService.get("/user/$userId");
-      return UserModel.fromJson(response.data);
-    } catch (e) {
-      throw Exception("Failed to get user data");
-    }
-  }
-
-  /// **อัปเดตโปรไฟล์ผู้ใช้**
-  Future<String> updateUserProfile({
-    required int userId,
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    File? profileImage,
-  }) async {
-    try {
-      // ตรวจสอบ MIME type ของไฟล์
-      String? mimeType = profileImage != null ? lookupMimeType(profileImage.path) : null;
-      print("📌 Uploading File: ${profileImage?.path}");
-      print("📌 Detected MIME Type: $mimeType");
-
-      FormData formData = FormData.fromMap({
-        "user_id": userId.toString(),
-        "first_name": firstName,
-        "last_name": lastName,
-        "phone_number": phoneNumber,
-        if (profileImage != null)
-          "profile_image": await MultipartFile.fromFile(
-            profileImage.path,
-            contentType: mimeType != null ? MediaType.parse(mimeType) : MediaType("image", "jpeg"),
-          ),
-      });
-
-      final response = await apiService.put("/user/update-profile", data: formData);
-      return response.data["message"];
-    } on DioException catch (e) {
-      print("🚨 SERVER RESPONSE: ${e.response?.data}");
-      throw Exception("Server Error: ${e.response?.data["message"] ?? "Unknown error"}");
-    }
+  Future<void> logout() async {
+    await LocalStorageHelper.clearAll();
   }
 }

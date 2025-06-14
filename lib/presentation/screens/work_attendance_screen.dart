@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/attendance/attendance_bloc.dart';
@@ -332,9 +334,17 @@ class AttendancePage extends StatelessWidget {
                       // OK Button
                       GestureDetector(
                         onTap: () {
-                          context
-                              .read<AttendanceCallApiBloc>()
-                              .add(CheckInRequested(employeeIdController.text));
+                          if(state.isCheckIn){
+                            context
+                                .read<AttendanceCallApiBloc>()
+                                .add(CheckInRequested(employeeIdController.text));
+                          }else{
+                            log("[namo log] CheckOutRequested : ${employeeIdController.text}");
+                            context
+                                .read<AttendanceCallApiBloc>()
+                                .add(CheckOutRequested(employeeIdController.text));
+                          }
+
                           // s22
                           // context.read<AttendanceBloc>().add(CloseDialog());
                           // Navigator.of(dialogContext).pop();

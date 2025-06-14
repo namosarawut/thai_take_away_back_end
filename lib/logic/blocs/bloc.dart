@@ -5,17 +5,24 @@ import 'package:thai_take_away_back_end/logic/blocs/attendance/attendance_bloc.d
 import 'package:thai_take_away_back_end/logic/blocs/attendance_call_api/attendance_call_api_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
 import 'package:thai_take_away_back_end/logic/blocs/dialog_employees/dialog_cubit.dart';
+import 'package:thai_take_away_back_end/logic/blocs/login_call_api/login_call_api_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/logout/logout_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/maps/map_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar_admin/side_bar_admin_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar_staff/side_bar_staff_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/store_settings/store_settings_bloc.dart';
 import 'package:thai_take_away_back_end/repositores/attendance_repository.dart';
+import 'package:thai_take_away_back_end/repositores/auth_repository.dart';
+import 'package:thai_take_away_back_end/repositores/store_settings_repository.dart';
 
 
 import 'order_view/order_view_cubit.dart';
 
 class BlocList {
 final AttendanceRepository attendanceRepository;
-  BlocList(this.attendanceRepository);
+final AuthRepository authRepository;
+final StoreSettingsRepository storeSettingsRepository;
+  BlocList(this.attendanceRepository,this.authRepository,this.storeSettingsRepository);
 
   List<BlocProvider> get blocs {
     return [
@@ -26,8 +33,11 @@ final AttendanceRepository attendanceRepository;
       BlocProvider<DialogCubit>(create: (_) => DialogCubit()),
       BlocProvider<MapCubit>(create: (_) => MapCubit()),
       BlocProvider<PositionDialogCubit>(create: (_) => PositionDialogCubit()),
+      BlocProvider<LogoutCubit>(create: (_) => LogoutCubit(authRepository)),
       BlocProvider<CustomerBloc>(create: (_) => CustomerBloc()..add(LoadCustomers())),
       BlocProvider<AttendanceCallApiBloc>(create: (_) => AttendanceCallApiBloc(attendanceRepository)),
+      BlocProvider<LoginCallApiBloc>(create: (_) => LoginCallApiBloc(authRepository)),
+      BlocProvider<StoreSettingsBloc>(create: (_) => StoreSettingsBloc(storeSettingsRepository)),
     ];
   }
 }

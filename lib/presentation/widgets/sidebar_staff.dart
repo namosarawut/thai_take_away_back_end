@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/logout/logout_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar_admin/side_bar_admin_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar_staff/side_bar_staff_bloc.dart';
 
@@ -80,13 +81,18 @@ class SideBarStaff extends StatelessWidget {
               ),
               const Spacer(),
               // ไอคอน Logout (คงที่ ไม่ต้องใช้ bloc)
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 20),
-                child: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                  size: 28,
+              GestureDetector(
+                onTap: (){
+                  context.read<LogoutCubit>().logout();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: const Icon(
+                    Icons.logout,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
               ),
             ],

@@ -1,11 +1,17 @@
 // map_screen.dart
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:thai_take_away_back_end/logic/blocs/maps/map_cubit.dart';
-
+import 'package:thai_take_away_back_end/logic/blocs/store_settings/store_settings_bloc.dart';
+import 'package:thai_take_away_back_end/data/model/store_settings_model.dart';
+import 'package:thai_take_away_back_end/repositores/store_settings_repository.dart';
+import 'package:thai_take_away_back_end/service/api_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -19,25 +25,32 @@ class _MapScreenState extends State<MapScreen> {
   late final MapController _mapController;
   final _distanceController = TextEditingController();
 
+  late double _initialDistanceKm;
+  late LatLng _initialCenter;
+  bool _hasChanged = false;
+
   @override
   void initState() {
     super.initState();
     _cubit = MapCubit();
     _mapController = MapController();
-    _distanceController.text = _cubit.state.distanceKm.toStringAsFixed(0);
+
+    // fetch store settings after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StoreSettingsBloc>().add(FetchStoreSettings());
+    });
 
     _initLocation();
   }
 
   Future<void> _initLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
+    if (!serviceEnabled) return;
     LocationPermission perm = await Geolocator.checkPermission();
     if (perm == LocationPermission.denied) {
       perm = await Geolocator.requestPermission();
-      if (perm == LocationPermission.deniedForever || perm == LocationPermission.denied) {
+      if (perm == LocationPermission.denied ||
+          perm == LocationPermission.deniedForever) {
         return;
       }
     }
@@ -45,6 +58,28 @@ class _MapScreenState extends State<MapScreen> {
     final latlng = LatLng(pos.latitude, pos.longitude);
     _cubit.centerChanged(latlng);
     _mapController.move(latlng, 13);
+    _checkHasChanged();
+  }
+
+  void _checkHasChanged() {
+    final currentDist = _cubit.state.distanceKm;
+    final currentCenter = _cubit.state.center;
+    final changed = (currentDist != _initialDistanceKm) ||
+        (currentCenter.latitude != _initialCenter.latitude) ||
+        (currentCenter.longitude != _initialCenter.longitude);
+    setState(() {
+      _hasChanged = changed;
+    });
+  }
+
+  void _resetToInitial() {
+    _distanceController.text = _initialDistanceKm.toStringAsFixed(0);
+    _cubit.distanceChanged(_initialDistanceKm);
+    _cubit.centerChanged(_initialCenter);
+    _mapController.move(_initialCenter, 13);
+    setState(() {
+      _hasChanged = false;
+    });
   }
 
   @override
@@ -55,8 +90,35 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cubit,
+    return BlocListener<StoreSettingsBloc, StoreSettingsState>(
+      listener: (context, state) {
+        if (state is StoreSettingsLoaded) {
+          final s = state.settings;
+          _initialCenter =
+              LatLng(double.parse(s.latitude.toString()), double.parse(s.longitude.toString()));
+          _initialDistanceKm = s.serviceRadius / 1000;
+          _distanceController.text =
+              _initialDistanceKm.toStringAsFixed(0);
+          _cubit.distanceChanged(_initialDistanceKm);
+          _cubit.centerChanged(_initialCenter);
+          _mapController.move(_initialCenter, 13);
+          _checkHasChanged();
+        } else if (state is StoreSettingsUpdateSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else if (state is StoreSettingsError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
       child: Scaffold(
         backgroundColor: const Color(0xFFF1F4F9),
         body: SafeArea(
@@ -69,7 +131,7 @@ class _MapScreenState extends State<MapScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     const Text(
-                      'Distant',
+                      'Distance (km)',
                       style: TextStyle(
                         color: Color(0xFF5E5483),
                         fontSize: 20,
@@ -79,24 +141,25 @@ class _MapScreenState extends State<MapScreen> {
                     const SizedBox(width: 12),
                     SizedBox(
                       width: 200,
-                      child: Expanded(
-                        child: TextField(
-                          controller: _distanceController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
+                      child: TextField(
+                        controller: _distanceController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
                           ),
-                          onChanged: (v) {
-                            final km = double.tryParse(v) ?? _cubit.state.distanceKm;
-                            _cubit.distanceChanged(km);
-                          },
                         ),
+                        onChanged: (v) {
+                          final km =
+                              double.tryParse(v) ?? _cubit.state.distanceKm;
+                          _cubit.distanceChanged(km);
+                          _checkHasChanged();
+                        },
                       ),
                     ),
                   ],
@@ -123,22 +186,23 @@ class _MapScreenState extends State<MapScreen> {
                                     initialZoom: 13,
                                     onPositionChanged: (pos, _) {
                                       _cubit.centerChanged(pos.center!);
+                                      _checkHasChanged();
                                     },
                                   ),
                                   children: [
                                     TileLayer(
-                                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                      urlTemplate:
+                                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                                       subdomains: const ['a', 'b', 'c'],
                                     ),
-                                  ]
+                                  ],
                                 ),
                               ),
-                              // Center marker
-                              Positioned(
+                              const Positioned(
                                 child: Icon(
                                   Icons.location_on,
                                   size: 44,
-                                  color: const Color(0xFF5E5483),
+                                  color: Color(0xFF5E5483),
                                 ),
                               ),
                             ],
@@ -149,36 +213,69 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Save button
+                // Buttons: Get Current, Reset, Save Change
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        final dist = _cubit.state.distanceKm;
-                        final center = _cubit.state.center;
-                        // TODO: บันทึกค่า dist และ center ผ่าน Bloc อื่น หรือ API
+                    // Get Current
+                    TextButton.icon(
+                      onPressed: () async {
+                        await _initLocation();
                       },
-                      child: Container(
-                        width: 363,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF22C453),
+                      icon: const Icon(Icons.my_location,
+                          color: Color(0xFF5E5483)),
+                      label: const Text(
+                        'Get Current',
+                        style: TextStyle(
+                          color: Color(0xFF5E5483),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Reset
+                    TextButton(
+                      onPressed: _hasChanged ? _resetToInitial : null,
+                      child: const Text('Reset'),
+                    ),
+                    const SizedBox(width: 12),
+                    // Save Change
+                    ElevatedButton(
+                      onPressed: _hasChanged
+                          ? () {
+                        final newSettings = StoreSettingsModel(
+                          latitude: double.parse(_cubit.state.center.latitude
+                              .toString()),
+                          longitude: double.parse(_cubit.state.center.longitude
+                              .toString()),
+                          serviceRadius:
+                          (_cubit.state.distanceKm).toInt(),
+                        );
+                        context
+                            .read<StoreSettingsBloc>()
+                            .add(UpdateStoreSettings(newSettings));
+                      }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _hasChanged
+                            ? const Color(0xFF22C453)
+                            : const Color(0x8022C453),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Save Change',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fixedSize: const Size(180, 56),
+                      ),
+                      child: const Text(
+                        'Save Change',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

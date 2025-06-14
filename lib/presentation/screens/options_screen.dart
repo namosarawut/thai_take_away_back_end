@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TwoButtonsScreen extends StatelessWidget {
-  const TwoButtonsScreen({Key? key}) : super(key: key);
+  const TwoButtonsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

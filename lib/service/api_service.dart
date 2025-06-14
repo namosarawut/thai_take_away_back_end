@@ -1,19 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:thai_take_away_back_end/intercepter/api_interceptor.dart';
+import 'package:thai_take_away_back_end/repositores/auth_repository.dart';
 
 
 
 class ApiService {
   late Dio _dio;
-
+  late AuthRepository _authRepo;
   ApiService() {
-    _dio = Dio(BaseOptions(
-      baseUrl: "http://192.168.159.145:3000", // ตั้งค่า base URL ของ API
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
-
-    _dio.interceptors.add(ApiInterceptor());
+    _dio = Dio(BaseOptions(baseUrl: "http://localhost:3000"));
+    _authRepo = AuthRepository(this);
+    _dio.interceptors.add(ApiInterceptor(_dio, _authRepo));
   }
   // Function สำหรับ GET
   Future<Response> get(String endpoint, {Map<String, dynamic>? query}) async {

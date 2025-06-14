@@ -14,14 +14,15 @@ class AttendanceCallApiLoading extends AttendanceCallApiState {}
 class AttendanceCallApiSuccess extends AttendanceCallApiState {
   final String message;
   final String name;
-  final DateTime checkInTime;
+  final DateTime timestamp;
 
   AttendanceCallApiSuccess({
     required this.message,
     required this.name,
-    required this.checkInTime,
+    required this.timestamp,
   });
 }
+
 
 /// เกิดข้อผิดพลาดขณะเช็คอิน
 class AttendanceCallApiFailure extends AttendanceCallApiState {
