@@ -1,12 +1,14 @@
+// lib/presentation/screens/admin/employees_screen/employees_list_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/add_employee/add_employee_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/delete_employee/delete_employee_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/employees/employees_screen_bloc.dart';
-import 'package:thai_take_away_back_end/presentation/screens/admin/customer_screens/order_detail_screen.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/employees_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/attendance_records/attendance_records_bloc.dart';
 import 'package:thai_take_away_back_end/presentation/widgets/add_employee_dialog.dart';
 import 'package:thai_take_away_back_end/presentation/widgets/employee_period_dialog.dart';
-
-
 
 class EmployeesListScreen extends StatefulWidget {
   const EmployeesListScreen({super.key});
@@ -16,351 +18,460 @@ class EmployeesListScreen extends StatefulWidget {
 }
 
 class _EmployeesListScreenState extends State<EmployeesListScreen> {
+  static const int _limit = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    final screenBloc = context.read<EmployeesScreenBloc>();
+    _loadData(screenBloc.state.isViewEmployeeList, 0);
+  }
+
+  void _loadData(bool viewList, int page) {
+    if (viewList) {
+      context.read<EmployeesBloc>().add(FetchEmployees(
+        type: 'all',
+        page: page,
+        limit: _limit,
+      ));
+    } else {
+      if (page == 0) {
+        final start = DateTime.now();
+        context.read<AttendanceRecordsBloc>().add(
+          FetchAttendanceRecords(
+            page: 1,
+            limit: _limit,
+            startDate: start,
+            endDate: start,
+          ),
+        );
+      } else {
+        final start = DateTime.now();
+        final end = DateTime.now();
+        context.read<AttendanceRecordsBloc>().add(
+          FetchAttendanceRecords(
+            page: page,
+            limit: _limit,
+            startDate: start,
+            endDate: end,
+            employeeID: 'namoFag',
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F9),
-      body: BlocConsumer<EmployeesScreenBloc, EmployeesScreenState>(
-        listener: (context, state) {
-          // TODO: implement listener
-        },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AddEmployeeBloc, AddEmployeeState>(
+          listener: (context, state) {
+            if (state is AddEmployeeLoading) {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("ss"),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              _loadData(true, 1);
+            } else if (state is AddEmployeeFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.error}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+        ),
+        BlocListener<DeleteEmployeeBloc, DeleteEmployeeState>(
+          listener: (context, state) {
+            if (state is DeleteEmployeeSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              _loadData(true, 1);
+            } else if (state is DeleteEmployeeFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error: ${state.error}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<EmployeesScreenBloc, EmployeesScreenState>(
         builder: (context, state) {
-          return Row(
-            children: [
-              SizedBox(width: 120,),
-              Container(
-                width: MediaQuery.of(context).size.width - 120-24,
-                child: Column(
-                  children: [
-                    SizedBox(height: 30,),
-                    // Header section with title and pagination
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Employees',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.indigo[800],
+          final viewList = state.isViewEmployeeList;
+          return Scaffold(
+            backgroundColor: const Color(0xFFF1F4F9),
+            body: Row(
+              children: [
+                const SizedBox(width: 120),
+                SizedBox(
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width - 120 - 24,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Employees',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.indigo[800],
+                              ),
                             ),
-                          ),
-                          const PaginationBar(),
-                        ],
-                      ),
-                    ),
-                    // Switch Button and Date Picker
-                    Row(
-                      children: [
-                        Container(
-                          width: 310,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFE2E1EA),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Stack(
-                            children: [
-                              // Animated slider background
-                              AnimatedPositioned(
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                left: state.isViewEmployeeList ? 4 : 160.0,
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                  child: Container(
-                                    width: state.isViewEmployeeList ? 145 : 145.0,
-                                    height: 37,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF534598),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Button labels
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        context.read<EmployeesScreenBloc>().add(ToggleEmployeesViewType(true));
-                                      },
-                                      child: Center(
-                                        child: Text(
-                                          'Employee Lists',
-                                          style: TextStyle(
-                                            color: state.isViewEmployeeList ? Colors.white : Color(0xFF534598),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        context.read<EmployeesScreenBloc>().add(ToggleEmployeesViewType(false));
-                                      },
-                                      child: Center(
-                                        child: Text(
-                                          'Work Attendance',
-                                          style: TextStyle(
-                                            color: !state.isViewEmployeeList ? Colors.white : Color(0xFF534598),
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                            _buildPagination(viewList, state),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: (){
-                            if(state.isViewEmployeeList){
-                              EmployeePeriodDialog.show(context);
-                            }else{
-                              PositionDialog.show(context);
-                            }
-                          },
-                          child: Container(
-                            width: 263,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF76B46),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(state.isViewEmployeeList ? "Add":"Fillter Summary",
+                      ),
+                      // Toggle + Add/Filter
+                      Row(
+                        children: [
+                          _buildToggle(viewList),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () {
+                              if (viewList) {
+                                AddEmployeeDialog.show(context);
+                              } else {
+                                EmployeePeriodDialog.show(context);
+                              }
+                            },
+                            child: Container(
+                              width: 263,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF76B46),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  viewList ? 'Add' : 'Filter Summary',
                                   style: const TextStyle(
                                     fontSize: 20,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-                    // Order List
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20)
-                            ),
-                            child: ListView.builder(
-                              itemCount: 5,
-                              itemBuilder: (_, index) {
-                                return GestureDetector(
-                                  onTap: (){
-                                    // ในที่ที่ต้องการเปิดหน้า Order Detail:
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => OrderDetailPage(
-                                          orderId: '12212123',
-                                          items: [
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(
-                                              name: 'Stekt ris med kylling',
-                                              subtitle: 'Stekt ris med kylling',
-                                              price: 129,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-
-                                  },
-                                  child: ListTile(
-                                    title: const Text("12212123"),
-                                    subtitle: const Text("1000 k."),
-                                    leading: const Icon(Icons.image, color: Color(0xFFFD80A3)),
-                                    trailing:  GestureDetector(
-                                      onTap: (){
-                                        EmployeePeriodDialog.show(context);
-                                      },
-                                      child: Container(
-                                        width: 167,
-                                        height: 56,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF22C453),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Center(
-                                          child: Text("7 Hours",
-                                              style: const TextStyle(
-                                                  fontSize: 20,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-
-                          ),
-                          Positioned(
-                            top: MediaQuery.of(context).size.height-310,
-                            left:  MediaQuery.of(context).size.width-320,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                height: 56,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF7162BA),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    "9,000,000 NOK",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-
-
-                  ],
+                      const SizedBox(height: 16),
+                      // Content
+                      Expanded(
+                        child: viewList
+                            ? _buildEmployeeList()
+                            : _buildAttendanceList(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
     );
   }
-}
 
-
-class PaginationBar extends StatelessWidget {
-  const PaginationBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(6, (index) {
-        final pageNumber = index + 1;
-        final isActive = pageNumber == 1; // Assuming page 1 is active
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: 35,
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: isActive ? const Color(0xFF6A5BB0) : Colors.white,
-          ),
-          child: Center(
-            child: Text(
-              '$pageNumber',
-              style: TextStyle(
-                  color: isActive ? Colors.white : const Color(0xFF6A5BB0),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16
+  Widget _buildToggle(bool viewList) {
+    return Container(
+      width: 310,
+      height: 56,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE2E1EA),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            left: viewList ? 4 : 160.0,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+              child: Container(
+                width: 145,
+                height: 37,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF534598),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
-        );
-      }),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    context
+                        .read<EmployeesScreenBloc>()
+                        .add(ToggleEmployeesViewType(true));
+                    _loadData(true, 1);
+                  },
+                  child: Center(
+                    child: Text(
+                      'Employee Lists',
+                      style: TextStyle(
+                        color: viewList ? Colors.white : const Color(
+                            0xFF534598),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    context
+                        .read<EmployeesScreenBloc>()
+                        .add(ToggleEmployeesViewType(false));
+                    _loadData(false, 0);
+                  },
+                  child: Center(
+                    child: Text(
+                      'Work Attendance',
+                      style: TextStyle(
+                        color:
+                        !viewList ? Colors.white : const Color(0xFF534598),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
-}
 
-class CustomerListItem extends StatelessWidget {
-  final Customer customer;
+  Widget _buildPagination(bool viewList, EmployeesScreenState state) {
+    if (viewList) {
+      return BlocBuilder<EmployeesBloc, EmployeesState>(
+        builder: (context, state) {
+          if (state is EmployeesLoaded) {
+            final totalPages = state.pagination.totalPages;
+            final currentPage = state.pagination.page;
+            if (totalPages <= 1) return const SizedBox.shrink();
+            final buttonCount = totalPages > 6 ? 6 : totalPages;
+            return Row(
+              children: List.generate(buttonCount, (idx) {
+                final page = idx + 1;
+                final isActive = page == currentPage;
+                return GestureDetector(
+                  onTap: () {
+                    if (!isActive) _loadData(true, page);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? const Color(0xFF6A5BB0)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$page',
+                        style: TextStyle(
+                          color: isActive
+                              ? Colors.white
+                              : const Color(0xFF6A5BB0),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      );
+    } else {
+      return BlocBuilder<AttendanceRecordsBloc, AttendanceRecordsState>(
+        builder: (context, state) {
+          if (state is AttendanceRecordsLoaded) {
+            final totalPages = state.pagination.totalPages;
+            final currentPage = state.pagination.page;
+            if (totalPages <= 1) return const SizedBox.shrink();
+            final buttonCount = totalPages > 6 ? 6 : totalPages;
+            return Row(
+              children: List.generate(buttonCount, (idx) {
+                final page = idx + 1;
+                final isActive = page == currentPage;
+                return GestureDetector(
+                  onTap: () {
+                    if (!isActive) _loadData(false, page);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? const Color(0xFF6A5BB0)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$page',
+                        style: TextStyle(
+                          color: isActive
+                              ? Colors.white
+                              : const Color(0xFF6A5BB0),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      );
+    }
+  }
 
-  const CustomerListItem({
-    Key? key,
-    required this.customer,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(context, "customerDetailScreen");
+  Widget _buildEmployeeList() {
+    return BlocBuilder<EmployeesBloc, EmployeesState>(
+      builder: (context, state) {
+        if (state is EmployeesLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is EmployeesLoaded) {
+          return ListView.builder(
+            itemCount: state.employees.length,
+            itemBuilder: (_, i) {
+              final emp = state.employees[i];
+              return ListTile(
+                leading: const Icon(Icons.person, color: Color(0xFFFD80A3)),
+                title: Text("${emp.name} - ${emp.position}"),
+                subtitle: Text(emp.employeeID),
+                trailing: GestureDetector(
+                  onTap: () {
+                    context
+                        .read<DeleteEmployeeBloc>()
+                        .add(DeleteEmployeeRequested(emp.employeeID));
+                  },
+                  child: Container(
+                    width: 80,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        } else if (state is EmployeesError) {
+          return Center(child: Text('Error: ${state.message}'));
+        }
+        return const SizedBox.shrink();
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            // Customer icon
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.pink[200],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.group,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 15),
-            // Customer ID
-            Text(
-              customer.id,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[800],
-              ),
-            ),
-            const Spacer(),
-            // Ban button
-            SizedBox(
-              width: 180,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<CustomerBloc>().add(BanCustomer(customer.id));
+    );
+  }
+
+  Widget _buildAttendanceList() {
+    return BlocBuilder<AttendanceRecordsBloc, AttendanceRecordsState>(
+      builder: (context, state) {
+        if (state is AttendanceRecordsLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is AttendanceRecordsLoaded) {
+          final total = state.records.fold<double>(
+              0, (sum, r) => sum + r.workHours);
+          return Stack(
+            children: [
+              ListView.builder(
+                itemCount: state.records.length,
+                itemBuilder: (_, i) {
+                  final rec = state.records[i];
+                  return ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(rec.name),
+                    subtitle: Text(
+                      rec.checkOut != null
+                          ? 'In: ${rec.checkIn} – Out: ${rec.checkOut}'
+                          : 'In: ${rec.checkIn} – Haven\'t checked out yet',
+                    ),
+                    trailing: Container(
+                      width: 80,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text('${rec.workHours}h',
+                            style: const TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF85C70),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              ),
+              Positioned(
+                bottom: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7162BA),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                child: const Text(
-                  'Ban',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    'Total ${total.toStringAsFixed(2)}h',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          );
+        } else if (state is AttendanceRecordsError) {
+          return Center(child: Text('Error: ${state.message}'));
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }

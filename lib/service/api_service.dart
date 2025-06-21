@@ -8,7 +8,7 @@ class ApiService {
   late Dio _dio;
   late AuthRepository _authRepo;
   ApiService() {
-    _dio = Dio(BaseOptions(baseUrl: "http://localhost:3000"));
+    _dio = Dio(BaseOptions(baseUrl: "http://192.168.159.145:3000"));
     _authRepo = AuthRepository(this);
     _dio.interceptors.add(ApiInterceptor(_dio, _authRepo));
   }

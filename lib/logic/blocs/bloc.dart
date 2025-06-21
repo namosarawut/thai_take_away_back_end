@@ -6,6 +6,8 @@ import 'package:thai_take_away_back_end/logic/blocs/attendance_call_api/attendan
 import 'package:thai_take_away_back_end/logic/blocs/attendance_records/attendance_records_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
 import 'package:thai_take_away_back_end/logic/blocs/dialog_employees/dialog_cubit.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/add_employee/add_employee_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/employees/delete_employee/delete_employee_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/login_call_api/login_call_api_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/logout/logout_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/maps/map_cubit.dart';
@@ -47,6 +49,8 @@ final AttendanceRecordsRepository attendanceRecordsRepository;
       BlocProvider<LoginCallApiBloc>(create: (_) => LoginCallApiBloc(authRepository)),
       BlocProvider<StoreSettingsBloc>(create: (_) => StoreSettingsBloc(storeSettingsRepository)),
       BlocProvider<EmployeesBloc>(create: (_) => EmployeesBloc(employeesRepository)),
+      BlocProvider<DeleteEmployeeBloc>(create: (_) => DeleteEmployeeBloc(employeesRepository)),
+      BlocProvider<AddEmployeeBloc>(create: (_) => AddEmployeeBloc(employeesRepository)),
       BlocProvider<AttendanceRecordsBloc>(create: (_) => AttendanceRecordsBloc(attendanceRecordsRepository)),
     ];
   }

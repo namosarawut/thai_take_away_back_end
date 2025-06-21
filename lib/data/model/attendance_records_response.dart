@@ -13,11 +13,10 @@ class AttendanceRecordsResponse {
   });
 
   factory AttendanceRecordsResponse.fromJson(Map<String, dynamic> json) {
-    final list = (json['data'] as List)
-        .map((e) => AttendanceRecordModel.fromJson(e as Map<String, dynamic>))
-        .toList();
     return AttendanceRecordsResponse(
-      data: list,
+      data: (json['data'] as List)
+          .map((e) => AttendanceRecordModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       pagination:
       PaginationModel.fromJson(json['pagination'] as Map<String, dynamic>),
     );

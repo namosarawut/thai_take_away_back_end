@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:thai_take_away_back_end/data/model/add_employee_response.dart';
+import 'package:thai_take_away_back_end/data/model/delete_employee_response.dart';
 import 'package:thai_take_away_back_end/data/model/employees_response.dart';
 import 'package:thai_take_away_back_end/service/api_service.dart';
 
@@ -55,6 +56,19 @@ class EmployeesRepository {
       throw Exception('Failed to add employee: $e');
     }
   }
-
+  /// DELETE /api/employees/{employeeID}
+  Future<DeleteEmployeeResponse> deleteEmployee({
+    required String employeeID,
+  }) async {
+    try {
+      final response = await apiService.delete('/api/employees/$employeeID');
+      return DeleteEmployeeResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Unknown server error';
+      throw Exception('Server Error: $msg');
+    } catch (e) {
+      throw Exception('Failed to delete employee: $e');
+    }
+  }
 
 }
