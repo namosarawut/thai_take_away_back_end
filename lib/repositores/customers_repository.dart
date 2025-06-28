@@ -1,6 +1,7 @@
 // lib/repositores/customers_repository.dart
 
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:thai_take_away_back_end/data/model/ban_customer_response.dart';
 import 'package:thai_take_away_back_end/data/model/customer_orders_response.dart';
 import 'package:thai_take_away_back_end/data/model/customers_response.dart';
@@ -32,14 +33,14 @@ class CustomersRepository {
     } catch (e) {
       throw Exception('Failed to load customers: $e');
     }
-
   }
 
   /// PUT /api/customers/{id}/ban
   Future<BanCustomerResponse> banCustomer(int customerId) async {
     try {
       final response = await apiService.put('/api/customers/$customerId/ban');
-      return BanCustomerResponse.fromJson(response.data as Map<String, dynamic>);
+      return BanCustomerResponse.fromJson(
+          response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       final m = e.response?.data?['message'] ?? 'Unknown server error';
       throw Exception('Server Error: $m');
@@ -52,7 +53,8 @@ class CustomersRepository {
   Future<UnbanCustomerResponse> unbanCustomer(int customerId) async {
     try {
       final response = await apiService.put('/api/customers/$customerId/unban');
-      return UnbanCustomerResponse.fromJson(response.data as Map<String, dynamic>);
+      return UnbanCustomerResponse.fromJson(
+          response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       final m = e.response?.data?['message'] ?? 'Unknown server error';
       throw Exception('Server Error: $m');
@@ -64,17 +66,11 @@ class CustomersRepository {
   /// GET /api/customers/{id}/orders?startDate=&endDate=
   Future<CustomerOrdersResponse> getCustomerOrders({
     required int customerId,
-    required DateTime startDate,
-    required DateTime endDate,
   }) async {
     final response = await apiService.get(
       '/api/customers/$customerId/orders',
-      query: {
-        'startDate': startDate.toIso8601String().split('T').first,
-        'endDate': endDate.toIso8601String().split('T').first,
-      },
     );
-    return CustomerOrdersResponse.fromJson(response.data as Map<String, dynamic>);
+    return CustomerOrdersResponse.fromJson(
+        response.data as Map<String, dynamic>);
   }
-
 }

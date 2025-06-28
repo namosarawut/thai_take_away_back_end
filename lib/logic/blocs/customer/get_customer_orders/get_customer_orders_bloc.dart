@@ -18,9 +18,8 @@ class GetCustomerOrdersBloc
       try {
         final resp = await repository.getCustomerOrders(
           customerId: event.customerId,
-          startDate: event.startDate,
-          endDate: event.endDate,
         );
+        print("Fetched orders: ${resp.data}");
         emit(GetCustomerOrdersLoaded(
           orders: resp.data,
           totalPrice: resp.totalPrice,

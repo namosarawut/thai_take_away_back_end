@@ -72,11 +72,7 @@ class TwoButtonsScreen extends StatelessWidget {
                       color: Colors.white.withOpacity(0.34),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Image.asset(
-                      'assets/icons/staffIcon.png',
-                      width: 90,
-                      height: 90,
-                    ),
+                    child: Icon(Icons.display_settings_rounded,size: 90,color: Colors.white,),
                   ),
                   const SizedBox(width: 8),
                   const Text(

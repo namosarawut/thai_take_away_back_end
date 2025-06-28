@@ -8,6 +8,7 @@ import 'package:thai_take_away_back_end/logic/blocs/customer/ban_customer/ban_cu
 import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/get_customer_list/get_customer_list_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/get_customer_orders/get_customer_orders_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/customer/get_order_detail/get_order_detail_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/customer/unban_customer/unban_customer_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/dialog_employees/dialog_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/employees/add_employee/add_employee_bloc.dart';
@@ -23,6 +24,7 @@ import 'package:thai_take_away_back_end/repositores/attendance_repository.dart';
 import 'package:thai_take_away_back_end/repositores/auth_repository.dart';
 import 'package:thai_take_away_back_end/repositores/customers_repository.dart';
 import 'package:thai_take_away_back_end/repositores/employees_repository.dart';
+import 'package:thai_take_away_back_end/repositores/orders_repository.dart';
 import 'package:thai_take_away_back_end/repositores/store_settings_repository.dart';
 
 
@@ -37,7 +39,8 @@ final StoreSettingsRepository storeSettingsRepository;
 final EmployeesRepository employeesRepository;
 final AttendanceRecordsRepository attendanceRecordsRepository;
 final CustomersRepository customersRepository;
-  BlocList(this.attendanceRepository,this.authRepository,this.storeSettingsRepository,this.employeesRepository,this.attendanceRecordsRepository,this.customersRepository);
+final OrdersRepository ordersRepository;
+  BlocList(this.attendanceRepository,this.authRepository,this.storeSettingsRepository,this.employeesRepository,this.attendanceRecordsRepository,this.customersRepository,this.ordersRepository);
 
   List<BlocProvider> get blocs {
     return [
@@ -62,6 +65,7 @@ final CustomersRepository customersRepository;
       BlocProvider<BanCustomerBloc>(create: (_) => BanCustomerBloc(customersRepository)),
       BlocProvider<UnbanCustomerBloc>(create: (_) => UnbanCustomerBloc(customersRepository)),
       BlocProvider<GetCustomerOrdersBloc>(create: (_) => GetCustomerOrdersBloc(customersRepository)),
+      BlocProvider<GetOrderDetailBloc>(create: (_) => GetOrderDetailBloc(ordersRepository)),
     ];
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thai_take_away_back_end/logic/blocs/customer/customer.dart';
+import 'package:thai_take_away_back_end/logic/blocs/customer/get_customer_list/get_customer_list_bloc.dart';
 import 'package:thai_take_away_back_end/logic/blocs/logout/logout_cubit.dart';
 import 'package:thai_take_away_back_end/logic/blocs/side_bar_admin/side_bar_admin_bloc.dart';
 
@@ -16,6 +18,12 @@ class MainManagerAdminScreen extends StatefulWidget {
 }
 
 class _MainManagerAdminScreenState extends State<MainManagerAdminScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    context.read<GetCustomerListBloc>().add(FetchCustomerList());
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

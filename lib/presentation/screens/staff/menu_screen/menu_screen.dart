@@ -100,16 +100,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                       MaterialPageRoute(
                                         builder: (_) => OrderDetailPage(
                                           orderId: '12212123',
-                                          items: [
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(name: 'Stekt ris med kylling', price: 129),
-                                            OrderItem(
-                                              name: 'Stekt ris med kylling',
-                                              subtitle: 'Stekt ris med kylling',
-                                              price: 129,
-                                            ),
-                                          ],
+
                                         ),
                                       ),
                                     );
