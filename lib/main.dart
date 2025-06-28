@@ -15,6 +15,7 @@ import 'package:thai_take_away_back_end/presentation/screens/work_attendance_scr
 import 'package:thai_take_away_back_end/repositores/attendance_records_repository.dart';
 import 'package:thai_take_away_back_end/repositores/attendance_repository.dart';
 import 'package:thai_take_away_back_end/repositores/auth_repository.dart';
+import 'package:thai_take_away_back_end/repositores/customers_repository.dart';
 import 'package:thai_take_away_back_end/repositores/employees_repository.dart';
 import 'package:thai_take_away_back_end/repositores/store_settings_repository.dart';
 import 'package:thai_take_away_back_end/service/api_service.dart';
@@ -32,6 +33,7 @@ void main() async {
   final storeSettingsRepository = StoreSettingsRepository(apiService);
   final employeesRepository = EmployeesRepository(apiService);
   final attendanceRecordsRepository = AttendanceRecordsRepository(apiService);
+  final customersRepository = CustomersRepository(apiService);
 
   runApp(
     MyApp(
@@ -40,6 +42,7 @@ void main() async {
         storeSettingsRepository:storeSettingsRepository,
         employeesRepository:employeesRepository,
         attendanceRecordsRepository: attendanceRecordsRepository,
+      customersRepository: customersRepository,
     ),
   );
 }
@@ -50,6 +53,7 @@ class MyApp extends StatelessWidget {
   final StoreSettingsRepository storeSettingsRepository;
   final EmployeesRepository employeesRepository;
   final AttendanceRecordsRepository attendanceRecordsRepository;
+  final CustomersRepository customersRepository;
 
   const MyApp({
     super.key,
@@ -57,13 +61,13 @@ class MyApp extends StatelessWidget {
     required this.authRepository,
     required this.storeSettingsRepository,
     required this.employeesRepository,
-    required this.attendanceRecordsRepository,
+    required this.attendanceRecordsRepository, required this.customersRepository,
   });
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: BlocList(attendanceRepository, authRepository,storeSettingsRepository,employeesRepository,attendanceRecordsRepository).blocs,
+      providers: BlocList(attendanceRepository, authRepository,storeSettingsRepository,employeesRepository,attendanceRecordsRepository,customersRepository).blocs,
       child: MaterialApp(
         title: 'Secure Flutter App',
         theme: ThemeData(primarySwatch: Colors.blue),
